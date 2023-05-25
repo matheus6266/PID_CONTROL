@@ -43,8 +43,16 @@ if dados_coletados[0] == 'modelagem':
     # Salvar o DataFrame em formato .xlsx
     nome_arquivo = 'Resposta ao Degrau.xlsx'
     df.to_excel(nome_arquivo, index=False)
-    passo = 5
-    vetor_tempo = np.arange(0, len(RespostaDegrau)/2, 1)
+    passo = 0.005
+    valor = 0
+    vetor_tempo = []
+    num_posicoes = int(len(RespostaDegrau)/2)
+    print(num_posicoes)
+    for _ in range(num_posicoes):
+        vetor_tempo.append(valor)
+        valor += passo
+
+    #vetor_tempo = np.arange(0, len(RespostaDegrau)/2, 0.005)
     print("DataFrame salvo com sucesso em", nome_arquivo)
     plt.plot(vetor_tempo, resposta)
     # Adicionar rótulos aos eixos
@@ -53,6 +61,8 @@ if dados_coletados[0] == 'modelagem':
     # Adicionar título ao gráfico
     plt.title('Respsota Motor CC ao Degrau')
     # Mostrar o gráfico
+
+    plt.savefig("Resposta ao Degrau.png")
     plt.show()
 
 if (dados_coletados[0] == 'controle'):
@@ -88,8 +98,11 @@ if (dados_coletados[0] == 'controle'):
     plt.title('Gráfico de Variáveis')
     plt.legend()
 
+    plt.savefig("Resposta ao Degrau.png")
+
     # Exibir o gráfico
     plt.show()
+    
 
     print("Output: {}".format(output))
     print("Input: {}".format(input))
