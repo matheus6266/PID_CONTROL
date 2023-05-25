@@ -98,8 +98,5 @@ for(int i=0;i<=250;i++)
 
   delay(5);
 }
-while(1==1){
-  analogWrite(pinPWM1, 0); // (0 a 255)
-  analogWrite(pinPWM2, 0);  
-  }
+
 }

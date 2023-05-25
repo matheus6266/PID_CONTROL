@@ -5,12 +5,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # Configurar a porta serial
-porta = 'COM3'  # Porta serial do Arduino (pode variar dependendo do sistema operacional)
+porta = 'COM4'  # Porta serial do Arduino (pode variar dependendo do sistema operacional)
 velocidade = 115200  # Velocidade de comunicação serial
 iteracao = 0
 RespostaDegrau = []
-
-timeout = 5  # Tempo limite de espera em segundos
+dados = ""
+timeout = 20  # Tempo limite de espera em segundos
 start_time = time.time()
 
 # Abrir a porta serial
@@ -26,40 +26,71 @@ while True:
     if arduino.in_waiting > 0:
         dados = arduino.readline().decode('utf-8').rstrip()
         RespostaDegrau.append(dados)
-        start_time = time.time()  # Reiniciar o tempo de início
-
-    if (time.time() - start_time) > timeout:
+        print(dados)
+        start_time = time.time()
+    if ((time.time() - start_time) > timeout) or (dados == "SAIR PYTHON"):
         break
-
-RespostaDegrau = [item for item in RespostaDegrau if item]
-lista_pares, lista_impares = gerar_lista_pares_impares(len(RespostaDegrau))
-
-
-resposta = [RespostaDegrau[i] for i in lista_impares]
-degrau = [RespostaDegrau[i] for i in lista_pares]
-
-df = pd.DataFrame({'Degrau': degrau, 'Resposta': resposta})
-
-# Salvar o DataFrame em formato .xlsx
-nome_arquivo = 'Resposta ao Degrau.xlsx'
-
-df.to_excel(nome_arquivo, index=False)
-
-passo = 5
-vetor_tempo = np.arange(0, len(RespostaDegrau)/2, 1)
-
-print("DataFrame salvo com sucesso em", nome_arquivo)
-
-plt.plot(vetor_tempo, resposta)
-
-# Adicionar rótulos aos eixos
-plt.xlabel('Degrau')
-plt.ylabel('Resposta')
-
-# Adicionar título ao gráfico
-plt.title('Respsota Motor CC ao Degrau')
-
-# Mostrar o gráfico
-plt.show()
-
         
+dados_coletados = [item for item in RespostaDegrau if item]
+#print(dados_coletados)   
+if dados_coletados[0] == 'modelagem':
+    RespostaDegrau = dados_coletados
+    RespostaDegrau.pop(0)
+    lista_pares, lista_impares = gerar_lista_pares_impares(len(RespostaDegrau))
+    resposta = [RespostaDegrau[i] for i in lista_impares]
+    degrau = [RespostaDegrau[i] for i in lista_pares]
+    df = pd.DataFrame({'Degrau': degrau, 'Resposta': resposta})
+    # Salvar o DataFrame em formato .xlsx
+    nome_arquivo = 'Resposta ao Degrau.xlsx'
+    df.to_excel(nome_arquivo, index=False)
+    passo = 5
+    vetor_tempo = np.arange(0, len(RespostaDegrau)/2, 1)
+    print("DataFrame salvo com sucesso em", nome_arquivo)
+    plt.plot(vetor_tempo, resposta)
+    # Adicionar rótulos aos eixos
+    plt.xlabel('Degrau')
+    plt.ylabel('Resposta')
+    # Adicionar título ao gráfico
+    plt.title('Respsota Motor CC ao Degrau')
+    # Mostrar o gráfico
+    plt.show()
+
+if (dados_coletados[0] == 'controle'):
+    teste_controlador = dados_coletados
+    teste_controlador.pop(0)
+
+    output = []
+    input = []
+    set_point = []
+
+    for item in teste_controlador:
+        if item.startswith("output:"):
+            output.append(float(item.split(":")[1]))
+        elif item.startswith("input:"):
+            input.append(float(item.split(":")[1]))
+        elif item.startswith("set point:"):
+            set_point.append(float(item.split(":")[1]))
+    
+    df = pd.DataFrame({"Output": output, "Input": input, "Set Point": set_point})
+    nome_arquivo = 'Teste Controlador.xlsx'
+    df.to_excel(nome_arquivo, index=False)
+
+    vetor_tempo = np.arange(0, len(output), 1)
+    
+    # Plotar os dados
+    #plt.plot(vetor_tempo, output, label='Output')
+    plt.plot(vetor_tempo, input, label='Input')
+    plt.plot(vetor_tempo, set_point, label='Set Point')
+
+    # Configurações do gráfico
+    plt.xlabel('Tempo')
+    plt.ylabel('Valores')
+    plt.title('Gráfico de Variáveis')
+    plt.legend()
+
+    # Exibir o gráfico
+    plt.show()
+
+    print("Output: {}".format(output))
+    print("Input: {}".format(input))
+    print("Set Point: {}".format(set_point))
