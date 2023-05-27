@@ -17,7 +17,8 @@ double erro,input,output;
 double dt=0.005; // 5ms
 double setpoint;
 volatile long int posicao=0;
-double Kp=58,Ki=50;
+//double Kp=58,Ki=50;
+double Kp=21.82,Ki=1604;
 
 const int rs = 12, en = 11, d4 = 7, d5 = 6, d6 = 5, d7 = 4;
 int valorMapeado, valorPotenciometro;
